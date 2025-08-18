@@ -1,5 +1,5 @@
 #div_content {
-                
+ 
   padding:20px;
   margin:0 auto;
   position:relative;
@@ -10,43 +10,43 @@
   top:50px;
   border:2px solid black;
   /*Background Color Is Color For The Box*/
-  background-color: #fff;
-  transition: background .75s ease-out;          
- }
-#div_content:Hover{
-  background-color: #d1d1d1;
+  background-color: #24273a;
+  transition: .75s ease-out;
 }
-            html, body {
-                height: 100%;
-                margin: 0;
-                padding: 0;
-                /*color: Is Text Color*/
-                color: #000
-            }
-            body {
-                font-family:Verdana;
-                font-size:13px;
-            }
-            a:link {color:#000000;}
-            a:visited {color:#333333;}
-            a:hover {color:#BBBBBB;}
-            #div_footer {
-                padding:10px 10px;
-                height:5px;
-                width:760px;
-                text-align:center;
-                font-size:10px;
-                color:#444444;
-            }
+#div_content:Hover{
+  background-color: #222;
+}
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    /*color: Is Text Color*/
+    color: #cad3f5;
+}
+body {
+    font-family:Verdana;
+    font-size:13px;
+}
+a:link {color:#cad3f5;}
+a:visited {color:#cad3f5;}
+a:hover {color:#cad3f5;}
+#div_footer {
+    padding:10px 10px;
+    height:5px;
+    width:760px;
+    text-align:center;
+    font-size:10px;
+    color:#cad3f5;
+}
 
-          
-            #div_logo {
-                margin:0 auto;
-                width:760px;
-                height:40px;
-                text-align:center;
-                position:relative;
-            }
+   
+#div_logo {
+    margin:0 auto;
+    width:760px;
+    height:40px;
+    text-align:center;
+    position:relative;
+}
 .bg {
 
     background: -webkit-radial-gradient(center, ellipse cover, #ff6961, #77dd77, #A7C7E7, #C3B1E1);
@@ -54,12 +54,13 @@
     animation: gradient 15s ease infinite;
 }
  @keyframes gradient {
-                0% {
-                    background-position: 0% 50%;
-                }
-                50% {
-                    background-position: 100% 50%;
-                }
-                100% {
-                    background-position: 0% 50%;
-                }
+    0% {
+ background-position: 0% 50%;
+    }
+    50% {
+ background-position: 100% 50%;
+    }
+    100% {
+ background-position: 0% 50%;
+    }
+}
