@@ -1,286 +1,153 @@
-function cutHex(h) {return (h.charAt(0)=="#") ? h.substring(1,7):h}
-function hexToR(h) {return parseInt((cutHex(h)).substring(0,2),16)}
-function hexToG(h) {return parseInt((cutHex(h)).substring(2,4),16)}
-function hexToB(h) {return parseInt((cutHex(h)).substring(4,6),16)}
-function rgbToHex(R,G,B) {return toHex(R)+toHex(G)+toHex(B)}
-function toHex(n) {
-    n = parseInt(n,10);
-    if (isNaN(n)) return "00";
-    n = Math.max(0,Math.min(n,255));
-    return "0123456789ABCDEF".charAt((n-n%16)/16)
-    + "0123456789ABCDEF".charAt(n%16);
-}
-input_effect=""
-input_color1=""
-input_color2=""
-input_color3=""
-input_color4=""
-input_color5=""
-input_color6=""
-input_color7=""
-input_color8=""
-input_text=""
-input_font=""
-input_size=""
-input_bold=0
-input_italic=0
-input_colorword=0
-random_length=0;
-update=0
-var random_char=new Array();
+// Utility functions
+const cutHex = h => h.startsWith("#") ? h.slice(1) : h;
+const hexToR = h => parseInt(cutHex(h).slice(0, 2), 16);
+const hexToG = h => parseInt(cutHex(h).slice(2, 4), 16);
+const hexToB = h => parseInt(cutHex(h).slice(4, 6), 16);
+const toHex = n => {
+    n = Math.max(0, Math.min(parseInt(n, 10) || 0, 255));
+    return "0123456789ABCDEF".charAt((n >> 4)) + "0123456789ABCDEF".charAt(n & 15);
+};
+const rgbToHex = (R, G, B) => toHex(R) + toHex(G) + toHex(B);
+
+// Global state
+let inputs = {
+    effect: "", text: "", font: "", size: "", bold: 0, italic: 0, colorword: 0,
+    color1: "", color2: "", color3: "", color4: "", color5: "", color6: "", color7: "", color8: ""
+};
+let random_char = [];
+let random_length = 0;
+let update = 0;
+
+// Random colors
 function randomize_colors() {
-    var length=document.getElementById("input_text").value.length;
-    var a;
-    for (a=0; a<length; a+=1) {
-        random_char[a]=rgbToHex(Math.floor(Math.random()*256),Math.floor(Math.random()*256),Math.floor(Math.random()*256))
-    }
-    random_length=length;
-    update=1
+    const length = document.getElementById("input_text").value.length;
+    random_char = Array.from({ length }, () => rgbToHex(Math.random() * 255, Math.random() * 255, Math.random() * 255));
+    random_length = length;
+    update = 1;
 }
+
+// Get input values and detect updates
+function getInput(id) {
+    const el = document.getElementById(id);
+    return el.type === "checkbox" ? el.checked : el.value;
+}
+
 function textcolorizer_handle() {
-
-    if (input_effect!=document.getElementById("input_effect").value) {
-        document.getElementById("color_select1").style.visibility="hidden";
-        document.getElementById("color_select2").style.visibility="hidden";
-        document.getElementById("color_select3").style.visibility="hidden";
-        document.getElementById("color_select4").style.visibility="hidden";
-        document.getElementById("color_select5").style.visibility="hidden";
-        document.getElementById("color_select6").style.visibility="hidden";
-        document.getElementById("color_select"+document.getElementById("input_effect").value).style.visibility="visible";
-        update=1;
+    // Handle effect visibility
+    const newEffect = getInput("input_effect");
+    if (inputs.effect !== newEffect) {
+        for (let i = 1; i <= 6; i++) document.getElementById("color_select" + i).style.visibility = "hidden";
+        document.getElementById("color_select" + newEffect)?.style.setProperty("visibility", "visible");
+        update = 1;
     }
-    input_effect=document.getElementById("input_effect").value;
+    inputs.effect = newEffect;
 
-    if (input_color1!=document.getElementById("input_color1").value) {update=1;}
-    input_color1=document.getElementById("input_color1").value;
+    // Check and update all inputs
+    ["color1","color2","color3","color4","color5","color6","color7","color8","text","font","size"].forEach(key => {
+        const val = getInput("input_" + key);
+        if (inputs[key] !== val) update = 1;
+        inputs[key] = val;
+    });
+    ["bold","italic","colorword"].forEach(key => {
+        const val = getInput("input_" + key) ? 1 : 0;
+        if (inputs[key] !== val) update = 1;
+        inputs[key] = val;
+    });
 
-    if (input_color2!=document.getElementById("input_color2").value) {update=1;}
-    input_color2=document.getElementById("input_color2").value;
+    if (update) {
+        update = 0;
+        let str_html = "", str_richtext = "", str_bbcode = "";
+        let str_richtextend = "", str_bbcodeend = "", str_style = "";
 
-    if (input_color3!=document.getElementById("input_color3").value) {update=1;}
-    input_color3=document.getElementById("input_color3").value;
-
-    if (input_color4!=document.getElementById("input_color4").value) {update=1;}
-    input_color4=document.getElementById("input_color4").value;
-
-    if (input_color5!=document.getElementById("input_color5").value) {update=1;}
-    input_color5=document.getElementById("input_color5").value;
-
-    if (input_color6!=document.getElementById("input_color6").value) {update=1;}
-    input_color6=document.getElementById("input_color6").value;
-
-    if (input_color7!=document.getElementById("input_color7").value) {update=1;}
-    input_color7=document.getElementById("input_color7").value;
-
-    if (input_color8!=document.getElementById("input_color8").value) {update=1;}
-    input_color8=document.getElementById("input_color8").value;
-
-    if (input_text!=document.getElementById("input_text").value) {update=1;}
-    input_text=document.getElementById("input_text").value;
-
-    if (input_font!=document.getElementById("input_font").value) {update=1;}
-    input_font=document.getElementById("input_font").value;
-
-    if (input_size!=document.getElementById("input_size").value) {update=1;}
-    input_size=document.getElementById("input_size").value;
-
-    if (input_bold!=document.getElementById("input_bold").checked) {update=1;}
-    input_bold=document.getElementById("input_bold").checked;
-
-    if (input_italic!=document.getElementById("input_italic").checked) {update=1;}
-    input_italic=document.getElementById("input_italic").checked;
-
-    if (input_colorword!=document.getElementById("input_colorword").checked) {update=1;}
-    input_colorword=document.getElementById("input_colorword").checked;
-
-    if (update==1) {
-        update=0;
-        str_html="";
-        str_richtext="";
-        str_bbcode="";
-        var str_richtextend="";
-        var str_bbcodeend="";
-        str_style="";
-        if (input_bold==1) {str_style+="font-weight:bold;"; str_richtext+="<b>"; str_richtextend="</b>"+str_richtextend;}
-        if (input_italic==1) {str_style+="font-style:italic;"; str_richtext+="<i>"; str_richtextend="</i>"+str_richtextend;}
-
-      if (input_bold==1) {str_style+="font-weight:bold;"; str_bbcode+="[b]"; str_bbcodeend="[/b]"+str_bbcodeend;}
-        if (input_italic==1) {str_style+="font-style:italic;"; str_bbcode+="[i]"; str_bbcodeend="[/i]"+str_bbcodeend;}
-        if (input_font!="") {str_style+='font-family:"'+input_font+'";'; str_bbcode+='[font="'+input_font+']'; str_bbcodeend="[/font]"+str_bbcodeend;}
-        if (input_size!="0") {
-            var str_size;
-            str_size=""
-            if (input_size=="1") str_size="10px"
-            if (input_size=="2") str_size="12px"
-            if (input_size=="3") str_size="15px"
-            if (input_size=="4") str_size="17px"
-            if (input_size=="5") str_size="22px"
-            if (input_size=="6") str_size="27px"
-            if (input_size=="7") str_size="35px"
-            str_style+='font-size:'+str_size+';';
-            
-            str_richtext+='<size='+input_size * 6 +'>';
-            str_richtextend="</size>"+str_richtextend;
-            str_bbcode+='[size='+input_size+']';
-            str_bbcodeend="[/size]"+str_bbcode
+        if (inputs.bold) { str_style += "font-weight:bold;"; str_richtext += "<b>"; str_richtextend = "</b>" + str_richtextend; str_bbcode += "[b]"; str_bbcodeend = "[/b]" + str_bbcodeend; }
+        if (inputs.italic) { str_style += "font-style:italic;"; str_richtext += "<i>"; str_richtextend = "</i>" + str_richtextend; str_bbcode += "[i]"; str_bbcodeend = "[/i]" + str_bbcodeend; }
+        if (inputs.font) { str_style += `font-family:"${inputs.font}";`; str_bbcode += `[font="${inputs.font}"]`; str_bbcodeend = "[/font]" + str_bbcodeend; }
+        if (inputs.size && inputs.size !== "0") {
+            const sizes = ["10px","12px","15px","17px","22px","27px","35px"];
+            const sizePx = sizes[inputs.size-1] || "12px";
+            str_style += `font-size:${sizePx};`;
+            str_richtext += `<size=${inputs.size*6}>`; str_richtextend = "</size>" + str_richtextend;
+            str_bbcode += `[size=${inputs.size}]`; str_bbcodeend = "[/size]" + str_bbcodeend;
         }
-        if (str_style!="") str_html+="<span style='"+str_style+"'>";
-        var a,r,g,b,rinc,ginc,binc,ccol;
-        if (input_effect=="1") {
-            r=hexToR(input_color1)
-            g=hexToG(input_color1)
-            b=hexToB(input_color1)
-            rinc=(hexToR(input_color2)-r)/input_text.length
-            ginc=(hexToG(input_color2)-g)/input_text.length
-            binc=(hexToB(input_color2)-b)/input_text.length
-            for (a=0; a<input_text.length; a++) {
-                ccol=rgbToHex(r,g,b);
-                if (input_text.charAt(a)==" ") {
-                    str_html+=" ";
-                    str_richtext+=" ";
-                    str_bbcode+=" ";
-                } else {
-                    str_html+="<span style='color:#"+ccol+";'>"+input_text.charAt(a)+"</span>";
-                    str_richtext+='<color=#'+ccol+'>'+input_text.charAt(a)+"</color>";
-                    str_bbcode+='[color=#'+ccol+']'+input_text.charAt(a)+"[/color]";
-                }
-                r+=rinc;
-                g+=ginc;
-                b+=binc;
+
+        if (str_style) str_html += `<span style='${str_style}'>`;
+
+        const appendChar = (c, color) => {
+            if (c === " ") { str_html+=" "; str_richtext+=" "; str_bbcode+=" "; return; }
+            str_html += `<span style='color:#${color};'>${c}</span>`;
+            str_richtext += `<color=#${color}>${c}</color>`;
+            str_bbcode += `[color=#${color}]${c}[/color]`;
+        };
+
+        const len = inputs.text.length;
+        if (inputs.effect === "1" || inputs.effect === "2" || inputs.effect === "3") {
+            let colors = [];
+            if (inputs.effect === "1") colors = [inputs.color1, inputs.color2];
+            if (inputs.effect === "2") colors = [inputs.color3, inputs.color4];
+            if (inputs.effect === "3") colors = [inputs.color5, inputs.color6, inputs.color7];
+
+            let r = hexToR(colors[0]), g = hexToG(colors[0]), b = hexToB(colors[0]);
+            let rinc, ginc, binc;
+            let r2, g2, b2, rinc2, ginc2, binc2;
+            if (inputs.effect === "3") {
+                r2 = hexToR(colors[1]); g2 = hexToG(colors[1]); b2 = hexToB(colors[1]);
+                rinc = (hexToR(colors[2])-r)/Math.floor(len/2);
+                ginc = (hexToG(colors[2])-g)/Math.floor(len/2);
+                binc = (hexToB(colors[2])-b)/Math.floor(len/2);
+                rinc2 = (hexToR(colors[2])-r2)/Math.floor(len/2);
+                ginc2 = (hexToG(colors[2])-g2)/Math.floor(len/2);
+                binc2 = (hexToB(colors[2])-b2)/Math.floor(len/2);
+            } else {
+                rinc = (hexToR(colors[1])-r)/(inputs.effect === "1" ? len : Math.floor(len/2));
+                ginc = (hexToG(colors[1])-g)/(inputs.effect === "1" ? len : Math.floor(len/2));
+                binc = (hexToB(colors[1])-b)/(inputs.effect === "1" ? len : Math.floor(len/2));
             }
-        } else if (input_effect=="2") {
-            r=hexToR(input_color3)
-            g=hexToG(input_color3)
-            b=hexToB(input_color3)
-            rinc=(hexToR(input_color4)-r)/Math.floor(input_text.length/2)
-            ginc=(hexToG(input_color4)-g)/Math.floor(input_text.length/2)
-            binc=(hexToB(input_color4)-b)/Math.floor(input_text.length/2)
-            for (a=0; a<input_text.length; a++) {
-                ccol=rgbToHex(r,g,b);
-                if (input_text.charAt(a)==" ") {
-                    str_html+=" ";
-                    str_richtext+=" ";
-                    str_bbcode+=" ";
-                } else {
-                    str_html+="<span style='color:#"+ccol+";'>"+input_text.charAt(a)+"</span>";
-                    str_richtext+='<color=#'+ccol+'>'+input_text.charAt(a)+"</color>";
-                    str_bbcode+='[color=#'+ccol+']'+input_text.charAt(a)+"[/color]";
-                }
-                if (a<Math.floor(input_text.length/2)) {
-                    r+=rinc;
-                    g+=ginc;
-                    b+=binc;
-                } else {
-                    r-=rinc;
-                    g-=ginc;
-                    b-=binc;
-                }
+
+            for (let i = 0; i < len; i++) {
+                appendChar(inputs.text[i], rgbToHex(r,g,b));
+                if (inputs.effect === "1") { r+=rinc; g+=ginc; b+=binc; }
+                else if (inputs.effect === "2") { if(i<Math.floor(len/2)){r+=rinc;g+=ginc;b+=binc;} else {r-=rinc;g-=ginc;b-=binc;} }
+                else if (inputs.effect === "3") { if(i<Math.floor(len/2)){r+=rinc;g+=ginc;b+=binc;} else {r+=rinc2;g+=ginc2;b+=binc2;} }
             }
-        } else if (input_effect=="3") {
-            r=hexToR(input_color5)
-            g=hexToG(input_color5)
-            b=hexToB(input_color5)
-            rinc=(hexToR(input_color6)-r)/Math.floor(input_text.length/2)
-            ginc=(hexToG(input_color6)-g)/Math.floor(input_text.length/2)
-            binc=(hexToB(input_color6)-b)/Math.floor(input_text.length/2)
-            var r2,g2,b2,rinc2,ginc2,binc2;
-            r2=hexToR(input_color6)
-            g2=hexToG(input_color6)
-            b2=hexToB(input_color6)
-            rinc2=(hexToR(input_color7)-r2)/Math.floor(input_text.length/2)
-            ginc2=(hexToG(input_color7)-g2)/Math.floor(input_text.length/2)
-            binc2=(hexToB(input_color7)-b2)/Math.floor(input_text.length/2)
-            for (a=0; a<input_text.length; a++) {
-                ccol=rgbToHex(r,g,b);
-                if (input_text.charAt(a)==" ") {
-                    str_html+=" ";
-                    str_richtext+=" ";
-                    str_bbcode+=" ";
-                } else {
-                    str_html+="<span style='color:#"+ccol+";'>"+input_text.charAt(a)+"</span>";
-                    str_richtext+='<color=#'+ccol+'>'+input_text.charAt(a)+"</color>";
-                  str_bbcode+='[color=#'+ccol+']'+input_text.charAt(a)+"[/color]";
-                }
-                if (a<Math.floor(input_text.length/2)) {
-                    r+=rinc;
-                    g+=ginc;
-                    b+=binc;
-                } else {
-                    r+=rinc2;
-                    g+=ginc2;
-                    b+=binc2;
+        } else if (inputs.effect === "4") {
+            str_html += `<span style='color:${inputs.color8}'>${inputs.text}</span>`;
+            str_richtext += `<color=${inputs.color8}>${inputs.text}</color>`;
+            str_bbcode += `[color=${inputs.color8}]${inputs.text}[/color]`;
+        } else if (inputs.effect === "5") {
+            let i = 0;
+            for (let a = 0; a < len; a++) {
+                const ccol = random_char[i];
+                if (!inputs.colorword || (inputs.colorword && inputs.text[a] === " ")) i++;
+                if (a >= random_length) appendChar(inputs.text[a], "");
+                else if (!inputs.colorword) appendChar(inputs.text[a], ccol);
+                else {
+                    if(a===0 || inputs.text[a-1]==" ") str_html+=`<span style='color:#${ccol}'>${inputs.text[a]}`, str_richtext+=`<color=#${ccol}>${inputs.text[a]}`, str_bbcode+=`[color=#${ccol}]${inputs.text[a]}`;
+                    else if(a===len-1 || inputs.text[a]==" ") str_html+=inputs.text[a]+"</span>", str_richtext+=inputs.text[a]+"</color>", str_bbcode+=inputs.text[a]+"[/color]";
+                    else str_html+=inputs.text[a], str_richtext+=inputs.text[a], str_bbcode+=inputs.text[a];
                 }
             }
-        } else if (input_effect=="4") {
-            str_html+="<span style='color:"+input_color8+";'>"+input_text+"</span>"
-            str_richtext+='<color='+input_color8+'>'+input_text+"</color>";
-            str_richtext+='[color='+input_color8+']'+input_text+"[/color]";
-        } else if (input_effect=="5") {
-            var i=0;
-            for (a=0; a<input_text.length; a++) {
-                ccol=random_char[i];
-                if (input_colorword==0) i++;
-                if (input_colorword==1 && input_text.charAt(a)==" ") i++;
-                if (a>=random_length) {
-                    str_html+=input_text.charAt(a)
-                    str_richtext+=input_text.charAt(a)
-                    str_bbcode+=input_text.charAt(a)
-                } else {
-                    if (input_colorword==0) {
-                        if (input_text.charAt(a)==" ") {
-                            str_html+=" ";
-                            str_richtext+=" ";
-                            str_bbcode+=" ";
-                        } else {
-                            str_html+="<span style='color:#"+ccol+";'>"+input_text.charAt(a)+"</span>";
-                            str_richtext+='<color=#'+ccol+'>'+input_text.charAt(a)+"</color>";
-                            str_bbcode+='[color=#'+ccol+']'+input_text.charAt(a)+"[/color]"; 
-                        }
-                    } else {
-                        if (a==0 || input_text.charAt(a-1)==" ") {
-                            str_html+="<span style='color:#"+ccol+";'>"+input_text.charAt(a);
-                            str_richtext+='<color=#'+ccol+'>'+input_text.charAt(a);
-                          str_bbcode+='[color=#'+ccol+']'+input_text.charAt(a);
-                        } else if (a==input_text.length-1 || input_text.charAt(a)==" ") {
-                            str_html+=input_text.charAt(a)+"</span>";
-                            str_richtext+=input_text.charAt(a)+'</color>';
-                            str_bbcode+=input_text.charAt(a)+"[/color]";
-                        } else {
-                            str_html+=input_text.charAt(a);
-                            str_richtext+=input_text.charAt(a);
-                            str_bbcode+=input_text.charAt(a);
-                        }
-                    }
-                }
-            }
-        } else if (input_effect=="6") {
-            var i,s,p;
-            for (a=0; a<input_text.length; a++) {
-                i=a/input_text.length;
-                s=1/6
-                p=(i%s)/s
-                if (i>=s*0) ccol=rgbToHex(255,255*p,0);
-                if (i>=s*1) ccol=rgbToHex(255*(1-p),255,0);
-                if (i>=s*2) ccol=rgbToHex(0,255,255*p);
-                if (i>=s*3) ccol=rgbToHex(0,255*(1-p),255);
-                if (i>=s*4) ccol=rgbToHex(255*p,0,255);
-                if (i>=s*5) ccol=rgbToHex(255,0,255*(1-p));
-                if (input_text.charAt(a)==" ") {
-                    str_html+=" ";
-                    str_richtext+=" ";
-                    str_bbcode+=" ";
-                } else {
-                    str_html+="<span style='color:#"+ccol+";'>"+input_text.charAt(a)+"</span>";
-                    str_richtext+='<color=#'+ccol+'>'+input_text.charAt(a)+"</color>";
-                  str_bbcode+='[color=#'+ccol+']'+input_text.charAt(a)+"[/color>]";
-                }
+        } else if (inputs.effect === "6") {
+            const s = 1/6;
+            for (let a = 0; a < len; a++) {
+                const i = a/len;
+                const p = (i % s)/s;
+                let ccol;
+                if (i >= s*5) ccol = rgbToHex(255,0,255*(1-p));
+                else if (i >= s*4) ccol = rgbToHex(255*p,0,255);
+                else if (i >= s*3) ccol = rgbToHex(0,255*(1-p),255);
+                else if (i >= s*2) ccol = rgbToHex(0,255,255*p);
+                else if (i >= s*1) ccol = rgbToHex(255*(1-p),255,0);
+                else ccol = rgbToHex(255,255*p,0);
+                appendChar(inputs.text[a], ccol);
             }
         }
-        if (str_style!="") {str_html+="</span>"}
-        document.getElementById("div_preview").innerHTML="<span style='font-size:12px'>"+str_html+"</span>";
-       document.getElementById("output_bbcode").value=str_bbcode+str_bbcodeend;
-      document.getElementById("output_richtext").value=str_richtext+str_richtextend;
-        document.getElementById("output_html").value=str_html;
+
+        if (str_style) str_html += "</span>";
+        document.getElementById("div_preview").innerHTML = "<span style='font-size:12px'>" + str_html + "</span>";
+        document.getElementById("output_bbcode").value = str_bbcode + str_bbcodeend;
+        document.getElementById("output_richtext").value = str_richtext + str_richtextend;
+        document.getElementById("output_html").value = str_html;
     }
-    setTimeout(textcolorizer_handle,50)
+
+    setTimeout(textcolorizer_handle, 50);
 }
